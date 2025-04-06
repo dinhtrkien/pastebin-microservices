@@ -1,0 +1,27 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Paste {
+  id             Int      @id @default(autoincrement())
+  slug           String   @unique
+  content        String
+  createdAt      DateTime @default(now())
+  expirationTime DateTime?
+  viewsCount     Int      @default(0)
+  analytics Analytics[]
+}
+
+model Analytics {
+  id         Int      @id @default(autoincrement())
+  dateBucket DateTime
+  views      Int      @default(0)
+  pasteId    Int
+  paste      Paste    @relation(fields: [pasteId], references: [id])
+  @@unique([pasteId, dateBucket], name: "pasteId_dateBucket_unique")
+}

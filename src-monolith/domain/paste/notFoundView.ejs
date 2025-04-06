@@ -1,0 +1,62 @@
+<!-- filepath: c:\Users\Asus\Desktop\pastebin-monolith\src\domain\paste\notFoundView.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Paste Not Found</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      .error-icon {
+        font-size: 60px;
+        color: #e74c3c;
+        margin-bottom: 20px;
+      }
+      .message {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 30px;
+      }
+      .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .back-link:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="error-icon">⚠️</div>
+      <h1>Paste Not Found</h1>
+      <div class="message">
+        Sorry, the paste you're looking for has expired or doesn't exist.
+      </div>
+      <a href="/" class="back-link">Create New Paste</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển Phân Tích Paste</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --background-color: #f9fafb;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .data-source {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #f3f4f6;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bảng Điều Khiển Phân Tích Paste</h1>
+            <p class="description">Trực quan hóa thống kê lượt xem cho các paste của bạn</p>
+        </header>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-pattern="realistic">Dữ liệu thực tế</div>
+                <div class="tab" data-pattern="increasing">Xu hướng tăng</div>
+                <div class="tab" data-pattern="fluctuating">Dao động</div>
+                <div class="tab" data-pattern="weekend">Cao điểm cuối tuần</div>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="pasteId">ID Paste</label>
+                    <input type="number" id="pasteId" placeholder="Nhập ID paste" value="12345">
+                </div>
+                <div class="filter-group">
+                    <label for="month">Tháng</label>
+                    <select id="month">
+                        <option value="1">Tháng 1</option>
+                        <option value="2">Tháng 2</option>
+                        <option value="3">Tháng 3</option>
+                        <option value="4">Tháng 4</option>
+                        <option value="5">Tháng 5</option>
+                        <option value="6">Tháng 6</option>
+                        <option value="7">Tháng 7</option>
+                        <option value="8">Tháng 8</option>
+                        <option value="9">Tháng 9</option>
+                        <option value="10">Tháng 10</option>
+                        <option value="11">Tháng 11</option>
+                        <option value="12">Tháng 12</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="year">Năm</label>
+                    <input type="number" id="year" placeholder="Nhập năm">
+                </div>
+                <div class="filter-group" style="display: flex; align-items: flex-end;">
+                    <button id="fetchData">Cập Nhật Dữ Liệu</button>
+                </div>
+            </div>
+
+            <div id="chartContainer" class="chart-container">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+            <div class="data-source">
+                <strong>Lưu ý:</strong> dữ liệu sẽ được lấy từ AnalyticsService.
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Tổng Lượt Xem</div>
+                <div class="stat-value" id="totalViews">0</div>
+                <div class="stat-label">Trong Tháng</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Lượt Xem Trung Bình</div>
+                <div class="stat-value" id="avgViews">0</div>
+                <div class="stat-label">Mỗi Ngày</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ngày Cao Điểm</div>
+                <div class="stat-value" id="peakDay">-</div>
+                <div class="stat-label">Nhiều Lượt Xem Nhất</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Biến toàn cục để lưu trữ mẫu dữ liệu hiện tại
+        let currentPattern = 'realistic';
+        let analyticsChart = null;
+
+        // Thiết lập giá trị mặc định
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentDate = new Date();
+            document.getElementById('month').value = currentDate.getMonth() + 1;
+            document.getElementById('year').value = currentDate.getFullYear();
+            
+            // Tải dữ liệu mẫu khi trang được tải
+            loadSampleData();
+            
+            // Thiết lập sự kiện cho các tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPattern = this.getAttribute('data-pattern');
+                    loadSampleData();
+                });
+            });
+        });
+
+        // Hàm tải dữ liệu mẫu
+        function loadSampleData() {
+            const pasteId = document.getElementById('pasteId').value || '12345';
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+            
+            const analyticsData = generateMockData(pasteId, month, year, currentPattern);
+            renderChart(analyticsData, month, year);
+            updateStats(analyticsData);
+        }
+
+        document.getElementById('fetchData').addEventListener('click', function() {
+            loadSampleData();
+        });
+
+        // Hàm tạo dữ liệu mẫu với các mẫu khác nhau
+        function generateMockData(pasteId, month, year, pattern = 'realistic') {
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const data = [];
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                let views = 0;
+                const date = new Date(year, month - 1, day);
+                const dayOfWeek = date.getDay(); // 0 = Chủ Nhật, 6 = Thứ Bảy
+                
+                switch(pattern) {
+                    case 'realistic':
+                        // Mẫu thực tế: Cao hơn vào giữa tuần, thấp hơn vào cuối tuần
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                            views = Math.floor(Math.random() * 30) + 10; // 10-40 vào cuối tuần
+                        } else {
+                            views = Math.floor(Math.random() * 60) + 40; // 40-100 vào ngày thường
+                        }
+                        // Thêm một số đỉnh ngẫu nhiên
+                        if (Math.random() < 0.1) {
+                            views += Math.floor(Math.random() * 50) + 20;
+                        }
+                        break;
+                        
+                    case 'increasing':
+                        // Mẫu tăng dần: Lượt xem tăng dần theo thời gian
+                        const baseViews = 20;
+                        const growthFactor = 3;
+                        views = baseViews + (day * growthFactor) + (Math.random() * 20 - 10);
+                        views = Math.max(5, Math.floor(views));
+                        break;
+                        
+                    case 'fluctuating':
+                        // Mẫu dao động: Lượt xem dao động mạnh
+                        const baseValue = 50;
+                        const amplitude = 40;
+                        const period = 7; // Chu kỳ 7 ngày
+                        views = baseValue + amplitude * Math.sin((day / period) * Math.PI);
+                        views += (Math.random() * 20 - 10); // Thêm nhiễu
+                        views = Math.max(5, Math.floor(views));
+                        break;
+                        
+                    case 'weekend':
+                        // Mẫu cuối tuần: Lượt xem cao vào cuối tuần, thấp vào ngày thường
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                            views = Math.floor(Math.random() * 60) + 80; // 80-140 vào cuối tuần
+                        } else {
+                            views = Math.floor(Math.random() * 30) + 20; // 20-50 vào ngày thường
+                        }
+                        break;
+                        
+                    default:
+                        views = Math.floor(Math.random() * 95) + 5; // 5-100 mặc định
+                }
+                
+                data.push({
+                    id: day,
+                    pasteId: parseInt(pasteId),
+                    dateBucket: date,
+                    views: Math.floor(views)
+                });
+            }
+            
+            return data;
+        }
+
+        function renderChart(data, month, year) {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            // Chuẩn bị dữ liệu cho Chart.js
+            const labels = data.map(item => {
+                const date = new Date(item.dateBucket);
+                return date.getDate();
+            });
+            
+            const viewsData = data.map(item => item.views);
+            
+            // Hủy biểu đồ trước đó nếu tồn tại
+            if (analyticsChart) {
+                analyticsChart.destroy();
+            }
+            
+            // Tạo biểu đồ mới
+            analyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Lượt Xem Hàng Ngày',
+                        data: viewsData,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Lượt Xem'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ngày Trong Tháng'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Lượt Xem cho Paste #${data[0].pasteId} - ${getMonthName(month)} ${year}`,
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const date = new Date(year, month - 1, tooltipItems[0].label);
+                                    return `Ngày ${date.getDate()}/${month}/${year} (${getDayOfWeekName(date.getDay())})`;
+                                },
+                                label: function(context) {
+                                    return `Lượt xem: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStats(data) {
+            // Tính tổng lượt xem
+            const totalViews = data.reduce((sum, item) => sum + item.views, 0);
+            document.getElementById('totalViews').textContent = totalViews.toLocaleString('vi-VN');
+            
+            // Tính trung bình lượt xem mỗi ngày
+            const avgViews = (totalViews / data.length).toFixed(1);
+            document.getElementById('avgViews').textContent = avgViews;
+            
+            // Tìm ngày cao điểm
+            let peakDay = data[0];
+            for (const item of data) {
+                if (item.views > peakDay.views) {
+                    peakDay = item;
+                }
+            }
+            
+            const peakDate = new Date(peakDay.dateBucket);
+            document.getElementById('peakDay').textContent = `${peakDate.getDate()} (${peakDay.views})`;
+        }
+
+        function getMonthName(month) {
+            const months = [
+                'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+            ];
+            return months[month - 1];
+        }
+
+        function getDayOfWeekName(dayOfWeek) {
+            const days = [
+                'Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'
+            ];
+            return days[dayOfWeek];
+        }
+    </script>
+</body>
+</html>
