@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  database:
+    image: postgres:15
+    container_name: pastebin_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: pastebin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist data
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: pastebin_pgbouncer
+    depends_on:
+      - database
+    ports:
+      - "6432:6432" # Expose PgBouncer port
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    environment:
+      DATABASES_HOST: database
+      PGDATABASE: pastebin # Optional: Default database if not specified in connection string
+    restart: unless-stopped
+
+  redis: # Add Redis service
+    image: redis:alpine # Use a lightweight image
+    container_name: pastebin_redis
+    ports:
+      - "6379:6379" # Expose Redis port
+    volumes:
+      - redis_data:/data # Persist Redis data (optional but good practice)
+    restart: unless-stopped
+
+volumes:
+  postgres_data: # Define the volume for PostgreSQL data persistence
+  redis_data: # Define the volume for Redis data persistence

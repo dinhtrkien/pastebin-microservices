@@ -1,19 +1,24 @@
 {
   "name": "slug-generator-service",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node src/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^5.14.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "slug-generator-service": "file:"
+  },
+  "devDependencies": {
+    "prisma": "^5.14.0"
   }
 }
