@@ -113,7 +113,7 @@ const pasteService = {
           return null;
         }
 
-        await pasteRepo.incrementViews(slug);
+        // await pasteRepo.incrementViews(slug);
 
         // Increment views in background (fire and forget)
         this._incrementPasteViews(slug, cachedPaste).catch((err) => {
@@ -132,11 +132,15 @@ const pasteService = {
         return null;
       }
 
+      // this._incrementPasteViews(slug, cachedPaste).catch((err) => {
+      //   console.error(`Failed to increment views for ${slug}:`, err);
+      // });
+
       // Increment views
       await pasteRepo.incrementViews(slug);
 
       // Local copy modification for immediate view update
-      paste.viewsCount += 1;
+      // paste.viewsCount += 1;
 
       // update cache
       await cacheService.set(slug, paste, CACHE_TTL);

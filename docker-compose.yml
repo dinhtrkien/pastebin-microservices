@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persist data
+    restart: unless-stopped # Added restart policy
 
   pgbouncer:
     image: edoburu/pgbouncer
@@ -34,6 +35,68 @@ services:
       - "6379:6379" # Expose Redis port
     volumes:
       - redis_data:/data # Persist Redis data (optional but good practice)
+    restart: unless-stopped
+
+  slug-generator-service:
+    build:
+      context: ./slug-generator-service
+      dockerfile: Dockerfile
+    container_name: pastebin_slug_generator
+    depends_on:
+      - pgbouncer # Depends on pgbouncer for DB connections
+      - redis     # Depends on redis for caching/checking slugs
+    ports:
+      - "3001:3001" # Map host port 3001 to container port 3001
+    environment:
+      # Point to pgbouncer service for database connection
+      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # Point to redis service
+      REDIS_URL: redis://redis:6379
+      PORT: 3001 # Ensure the service runs on the exposed port
+      # REDIS_TTL: 3600 # Keep default or override if needed
+    restart: unless-stopped
+
+  paste-service:
+    build:
+      context: ./paste-service
+      dockerfile: Dockerfile
+    container_name: pastebin_paste_service
+    depends_on:
+      - pgbouncer             # Depends on pgbouncer for DB connections
+      - redis                 # Depends on redis for caching
+      - slug-generator-service # Depends on slug generator
+      - analytic-service      # Depends on analytic service
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    environment:
+      # Point to pgbouncer service for database connection
+      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # Point to redis service
+      REDIS_URL: redis://redis:6379
+      # Point to slug-generator service
+      SLUG_GENERATOR_URL: http://slug-generator-service:3001
+      # Point to analytic service
+      ANALYTIC_SERVICE_URL: http://analytic-service:3002
+      PORT: 3000 # Ensure the service runs on the exposed port
+      # REDIS_TTL: 3600 # Keep default or override if needed
+    restart: unless-stopped
+
+  analytic-service: # Add the Analytic service
+    build:
+      context: ./Analytic-service # Path to the service's code and Dockerfile
+      dockerfile: Dockerfile
+    container_name: pastebin_analytic_service
+    depends_on:
+      - database # Depends on the database service (direct connection, not pgbouncer)
+    ports:
+      - "3002:3002" # Map host port 3002 to container port 3002
+    environment:
+      # Override datasource URL to use the Docker service name 'database'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/pastebin
+      SPRING_DATASOURCE_USERNAME: root # Match database service credentials
+      SPRING_DATASOURCE_PASSWORD: rootpassword # Match database service credentials
+      # Set the server port for the Spring Boot application
+      SERVER_PORT: 3002
     restart: unless-stopped
 
 volumes:
