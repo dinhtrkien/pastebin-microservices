@@ -3,6 +3,7 @@ datasource db {
   url      = env("DATABASE_URL")
   relationMode = "prisma"
   pgbouncer = true
+
 }
 
 generator client {
