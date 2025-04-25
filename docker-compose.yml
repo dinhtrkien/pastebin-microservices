@@ -13,20 +13,20 @@ services:
       - postgres_data:/var/lib/postgresql/data # Persist data
     restart: unless-stopped # Added restart policy
 
-  pgbouncer:
-    image: edoburu/pgbouncer
-    container_name: pastebin_pgbouncer
-    depends_on:
-      - database
-    ports:
-      - "6432:6432" # Expose PgBouncer port
-    volumes:
-      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
-      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
-    environment:
-      DATABASES_HOST: database
-      PGDATABASE: pastebin # Optional: Default database if not specified in connection string
-    restart: unless-stopped
+  # pgbouncer:
+  #   image: edoburu/pgbouncer
+  #   container_name: pastebin_pgbouncer
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - "6432:6432" # Expose PgBouncer port
+  #   volumes:
+  #     - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+  #     - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+  #   environment:
+  #     DATABASES_HOST: database
+  #     PGDATABASE: pastebin # Optional: Default database if not specified in connection string
+  #   restart: unless-stopped
 
   redis: # Add Redis service
     image: redis:alpine # Use a lightweight image
@@ -43,14 +43,14 @@ services:
       dockerfile: Dockerfile
     container_name: pastebin_slug_generator
     depends_on:
-      - pgbouncer # Depends on pgbouncer for DB connections
+      # - pgbouncer # Depends on pgbouncer for DB connections
       - redis     # Depends on redis for caching/checking slugs
     ports:
       - "3001:3001" # Map host port 3001 to container port 3001
     environment:
       # Point to pgbouncer service for database connection
-      # DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
-      DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?schema=public
+      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?pgbouncer=true
       # Point to redis service
       REDIS_URL: redis://redis:6379
       PORT: 3001 # Ensure the service runs on the exposed port
@@ -63,7 +63,7 @@ services:
       dockerfile: Dockerfile
     container_name: pastebin_paste_service
     depends_on:
-      - pgbouncer             # Depends on pgbouncer for DB connections
+      # - pgbouncer             # Depends on pgbouncer for DB connections
       - redis                 # Depends on redis for caching
       - slug-generator-service # Depends on slug generator
       - analytic-service      # Depends on analytic service
@@ -71,8 +71,8 @@ services:
       - "3000:3000" # Map host port 3000 to container port 3000
     environment:
       # Point to pgbouncer service for database connection
-      # DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
-      DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?schema=public
+      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?pgbouncer=true
       # Point to redis service
       REDIS_URL: redis://redis:6379
       # Point to slug-generator service
@@ -81,6 +81,7 @@ services:
       ANALYTIC_SERVICE_URL: http://analytic-service:3002
       PORT: 3000 # Ensure the service runs on the exposed port
       # REDIS_TTL: 3600 # Keep default or override if needed
+      ENABLE_REDIS_CACHE: "true" # Feature flag for Redis caching
     restart: unless-stopped
 
   analytic-service: # Add the Analytic service

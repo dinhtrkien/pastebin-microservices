@@ -13,7 +13,6 @@ model Paste {
   content        String
   createdAt      DateTime @default(now())
   expirationTime DateTime?
-  viewsCount     Int      @default(0)
   analytics Analytics[]
 }
 
