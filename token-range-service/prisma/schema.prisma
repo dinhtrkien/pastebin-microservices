@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Analytics {
+  id         Int      @id @default(autoincrement())
+  dateBucket DateTime
+  views      Int      @default(0)
+  pasteId    Int
+  Paste      Paste    @relation(fields: [pasteId], references: [id])
+
+  @@unique([pasteId, dateBucket])
+}
+
 model Paste {
   id             Int         @id @default(autoincrement())
   slug           String      @unique
@@ -14,17 +24,7 @@ model Paste {
   createdAt      DateTime    @default(now())
   expirationTime DateTime?
   viewsCount     Int         @default(0)
-  analytics      Analytics[]
-}
-
-model Analytics {
-  id         Int      @id @default(autoincrement())
-  dateBucket DateTime
-  views      Int      @default(0)
-  pasteId    Int
-  paste      Paste    @relation(fields: [pasteId], references: [id])
-
-  @@unique([pasteId, dateBucket], name: "pasteId_dateBucket_unique")
+  Analytics      Analytics[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

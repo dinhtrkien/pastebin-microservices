@@ -23,7 +23,7 @@ CREATE UNIQUE INDEX ON token_ranges (range_start, range_end);
 
 - All slices start out empty; the first request will allocate the first slice automatically—no pre-seeding necessary.
 
-2. Build and run the Token-Range Service (TRS)
+2. (DONE) Build and run the Token-Range Service (TRS)
 A very small Express app that leases numeric slices.
 
 - Reference code:
@@ -92,7 +92,6 @@ app.listen(3001, () => console.log("TRS up on :3001"));
 
 4. Integrate with the Paste Service
 - Reference code:
-    // paste.service.ts (Express handler)
     app.post("/pastes", async (req, res) => {
     const slug = await tokenService.getSlug();         // 1. 8-char slug
     await prisma.paste.create({                       // 2. persist paste meta

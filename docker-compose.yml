@@ -99,6 +99,31 @@ services:
       SERVER_PORT: 3002
     restart: unless-stopped
 
+  token-range-service:
+    build: ./token-range-service
+    container_name: pastebin-token-range-service
+    env_file:
+      - ./token-range-service/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    networks:
+      - pastebin-network
+
+  token-service:
+    build: ./token-service
+    container_name: pastebin-token-range-service
+    env_file:
+      - ./token-service/.env
+    ports:
+      - "3005:3005"
+    dependson:
+      - redis
+      - token-range-service
+    networks:
+      - pastebin-network
+
 volumes:
   postgres_data: # Define the volume for PostgreSQL data persistence
   redis_data: # Define the volume for Redis data persistence
