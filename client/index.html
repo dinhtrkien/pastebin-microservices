@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paste Sharing App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="paste-form">
+            <h1>Create a Paste</h1>
+            
+            <div class="form-group">
+                <label for="pasteContent">Paste Content:</label>
+                <textarea id="pasteContent" rows="15"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiration">Expiration:</label>
+                <select id="expiration">
+                    <option value="never">Never (Default)</option>
+                    <option value="1h">1 Hour</option>
+                    <option value="1d">1 Day</option>
+                    <option value="1w">1 Week</option>
+                    <option value="1m">1 Month</option>
+                </select>
+            </div>
+            
+            <button id="createPasteBtn" class="create-btn">Create Paste</button>
+        </div>
+
+        <!-- Paste View (hidden by default) -->
+        <div class="paste-view" style="display: none;">
+            <h1>Paste <span id="pasteId"></span></h1>
+            <div class="paste-actions">
+                <button id="copyBtn" class="action-btn">Copy</button>
+                <button id="deleteBtn" class="action-btn delete-btn">Delete</button>
+            </div>
+            <pre id="pasteViewContent"></pre>
+            <div class="paste-info">
+                <p>Created: <span id="createdAt"></span></p>
+                <p>Expires: <span id="expiresAt"></span></p>
+                <p>Views: <span id="viewCount">0</span></p>
+            </div>
+            <button id="backBtn" class="back-btn">Create New Paste</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>Paste Created!</h2>
+            <p>Your paste has been created successfully.</p>
+            <p>Share this link:</p>
+            <div class="share-link">
+                <input type="text" id="pasteLink" readonly>
+                <button id="copyLinkBtn">Copy</button>
+            </div>
+            <div class="modal-actions">
+                <button id="viewPasteBtn">View Paste</button>
+                <button id="createNewBtn">Create New</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
