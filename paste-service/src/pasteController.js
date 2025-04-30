@@ -1,7 +1,6 @@
 const pasteService = require("./pasteService");
-const {getRedisClient} = require("./redis/redisClient");
+const { getRedisClient } = require("./redis/redisClient");
 const pasteController = {
-
   async createPaste(req, res) {
     try {
       const { content, expirationType } = req.body;
@@ -102,28 +101,27 @@ const pasteController = {
         return res.status(400).json({ error: "Slug parameter is required" });
       }
 
-      // Get Redis client
-      const redis = await getRedisClient();
-
-      // Atomic view counter using Redis
-      const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-      const key = `paste:${slug}:${today}`;
-      
-      // Increment view counter atomically
-      await redis.incr(key);
-      const value = await redis.get(key);
-      console.log(`Value for ${key}: ${value}`);
-
-      
-      // Set expiration for the counter (3 days)
-      await redis.expire(key, 60 * 60 * 24 * 3);
-
       // Retrieve the paste
       const paste = await pasteService.getPasteWithoutIncrement(slug);
 
       if (!paste) {
         return res.status(404).json({ error: "Paste not found or expired" });
       }
+
+      // Get Redis client
+      const redis = await getRedisClient();
+
+      // Atomic view counter using Redis
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const key = `paste:${slug}:${today}:${paste.id}`;
+
+      // Increment view counter atomically
+      await redis.incr(key);
+      const value = await redis.get(key);
+      console.log(`Value for ${key}: ${value}`);
+
+      // Set expiration for the counter (3 days)
+      await redis.expire(key, 60 * 60 * 24 * 3);
 
       res.json({
         id: paste.id,
@@ -139,7 +137,5 @@ const pasteController = {
     }
   },
 };
-
-
 
 module.exports = pasteController;
