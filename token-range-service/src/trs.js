@@ -13,7 +13,7 @@ app.get("/health", (req, res) => {
 });
 
 app.post("/leaseRange", async (req, res) => {
-  const { instanceId, batchSize = 100 } = req.body; // Default batch size as per instructions
+  const { instanceId, batchSize = 100000 } = req.body; // Default batch size as per instructions
 
   if (!instanceId) {
     return res.status(400).json({ error: "instanceId is required" });
