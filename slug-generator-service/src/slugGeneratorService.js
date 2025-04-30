@@ -25,11 +25,11 @@ const slugGeneratorService = {
       attempts++;
 
       // 1. Check cache first (fast check for recently generated/used slugs)
-      const cacheExists = await cacheService.exists(slug);
-      if (cacheExists) {
-        console.log(`Slug ${slug} found in cache, generating new one.`);
-        continue; // Slug is in cache, generate a new one
-      }
+      // const cacheExists = await cacheService.exists(slug);
+      // if (cacheExists) {
+      //   console.log(`Slug ${slug} found in cache, generating new one.`);
+      //   continue; // Slug is in cache, generate a new one
+      // }
 
       // 2. If not in cache, check the database
       try {
@@ -41,7 +41,7 @@ const slugGeneratorService = {
         if (dbPaste) {
           console.log(`Slug ${slug} found in database, generating new one.`);
           // Add the found slug to cache to speed up future checks
-          await cacheService.set(slug, { used: true });
+          // await cacheService.set(slug, { used: true });
           continue; // Slug exists in DB, generate a new one
         }
       } catch (dbError) {
@@ -64,7 +64,7 @@ const slugGeneratorService = {
     // 4. Reserve the unique slug in cache to prevent race conditions
     // Short TTL because paste-service should confirm or release it soon.
     const RESERVATION_TTL = 60; // 60 seconds
-    await cacheService.set(slug, { reserved: true }, RESERVATION_TTL);
+    // await cacheService.set(slug, { reserved: true }, RESERVATION_TTL);
     console.log(`Slug ${slug} generated and reserved.`);
     return slug;
   },

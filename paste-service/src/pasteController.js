@@ -1,17 +1,13 @@
 const pasteService = require("./pasteService");
+const { getRedisClient } = require("./redis/redisClient");
 
-/**
- * Controller handling HTTP requests for paste operations
- */
+
 const pasteController = {
-  /**
-   * Create a new paste
-   * @param {Request} req - Express request object
-   * @param {Object} res - Express response object
-   */
   async createPaste(req, res) {
     try {
       const { content, expirationType } = req.body;
+      // Log the received expirationType
+      // console.log(`Received expirationType: ${expirationType}`);
 
       if (!content) {
         return res.status(400).json({ error: "Content is required" });
@@ -44,18 +40,21 @@ const pasteController = {
           expirationTime = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
           break;
         case "1mo":
-          expirationTime = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Approx 1 month
           break;
         case "6mo":
-          expirationTime = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000); // Approx 6 months
           break;
         case "1y":
-          expirationTime = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // Approx 1 year
           break;
         case "never":
         default:
           expirationTime = null;
       }
+
+      // Log the calculated expirationTime
+      // console.log(`Calculated expirationTime: ${expirationTime}`);
 
       const newPaste = await pasteService.createPaste(content, expirationTime);
 
@@ -65,7 +64,6 @@ const pasteController = {
         content: newPaste.content,
         createdAt: newPaste.createdAt,
         expirationTime: newPaste.expirationTime,
-        viewsCount: 0,
       });
     } catch (error) {
       console.error("Create paste error:", error);
@@ -73,11 +71,6 @@ const pasteController = {
     }
   },
 
-  /**
-   * Get a paste by its slug
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
   async getPaste(req, res) {
     try {
       const { slug } = req.params;
@@ -86,11 +79,27 @@ const pasteController = {
         return res.status(400).json({ error: "Slug parameter is required" });
       }
 
-      const paste = await pasteService.getPaste(slug);
+      // Retrieve the paste
+      const paste = await pasteService.getPasteWithoutIncrement(slug);
 
       if (!paste) {
         return res.status(404).json({ error: "Paste not found or expired" });
       }
+
+      // Get Redis client
+      const redis = await getRedisClient();
+
+      // Atomic view counter using Redis
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const key = `paste:${slug}:${today}:${paste.id}`;
+
+      // Increment view counter atomically
+      await redis.incr(key);
+      const value = await redis.get(key);
+      console.log(`Value for ${key}: ${value}`);
+
+      // Set expiration for the counter (3 days)
+      await redis.expire(key, 60 * 60 * 24 * 3);
 
       res.json({
         id: paste.id,
@@ -98,15 +107,14 @@ const pasteController = {
         content: paste.content,
         createdAt: paste.createdAt,
         expirationTime: paste.expirationTime,
-        viewsCount: paste.viewsCount,
+        // viewsCount: paste.viewsCount,
       });
     } catch (error) {
+      console.log(`Retrieved paste error: ${error}`);
       console.error(`Get paste error for slug ${req.params.slug}:`, error);
       res.status(500).json({ error: "Failed to retrieve paste" });
     }
   },
 };
-
-
 
 module.exports = pasteController;

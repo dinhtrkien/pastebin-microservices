@@ -10,9 +10,10 @@ class PastebinUser(HttpUser):
     wait_time = between(1, 3)
     host = "http://localhost:3000" # Assuming paste-service runs on port 3000
     # host = "http://localhost:3004"
+
     created_slugs = [] # Store slugs of created pastes
 
-    @task()
+    @task(1)
     def create_paste(self):
         """
         Task to create a new paste
@@ -20,7 +21,7 @@ class PastebinUser(HttpUser):
         # Generate random content for the paste
         paste_content = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation + ' ', k=random.randint(50, 100)))
         # Optionally choose an expiration type
-        expiration_types = [None, "10m", "1h", "1d", "never"]
+        expiration_types = ["10m", "1h", "1d", "never"]
         expiration_type = random.choice(expiration_types)
 
         payload = {
