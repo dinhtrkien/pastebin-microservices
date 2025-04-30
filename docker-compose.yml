@@ -86,20 +86,24 @@ services:
 
   analytic-service: # Add the Analytic service
     build:
-      context: ./Analytic-service # Path to the service's code and Dockerfile
+      context: ./analytic # Path to the service's code and Dockerfile
       dockerfile: Dockerfile
     container_name: pastebin_analytic_service
     depends_on:
       - database # Depends on the database service (direct connection, not pgbouncer)
     ports:
       - "3002:3002" # Map host port 3002 to container port 3002
-    environment:
-      # Override datasource URL to use the Docker service name 'database'
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/pastebin
-      SPRING_DATASOURCE_USERNAME: root # Match database service credentials
-      SPRING_DATASOURCE_PASSWORD: rootpassword # Match database service credentials
-      # Set the server port for the Spring Boot application
-      SERVER_PORT: 3002
+    restart: unless-stopped
+
+  analytic-worker:
+    build:
+      context: ./analyticWorker # Path to the service's code and Dockerfile
+      dockerfile: Dockerfile
+    container_name: pastebin_analytic_worker
+    depends_on:
+      - database # Depends on the database service (direct connection, not pgbouncer)
+    ports:
+      - "3006:3006" # Map host port 3002 to container port 3002
     restart: unless-stopped
 
 volumes:

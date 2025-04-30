@@ -30,12 +30,12 @@ const pasteService = {
       //   cacheService.set(slug, paste, INITIAL_CACHE_TTL);
       // }
 
-      // Confirm slug usage to extend cache
-      try {
-        await axios.post(`${SLUG_GENERATOR_URL}/api/slugs/${slug}/confirm`);
-      } catch (slugError) {
-        console.warn("Failed to confirm slug usage:", slugError.message);
-      }
+      // // Confirm slug usage to extend cache
+      // try {
+      //   await axios.post(`${SLUG_GENERATOR_URL}/api/slugs/${slug}/confirm`);
+      // } catch (slugError) {
+      //   console.warn("Failed to confirm slug usage:", slugError.message);
+      // }
 
       return paste;
     } catch (error) {
@@ -44,49 +44,112 @@ const pasteService = {
     }
   },
 
-  async _incrementPasteViews(slug, cachedPaste) {
-    try {
-      // 2. Update the cached object's view count
-      // Create a new object to avoid modifying the one potentially still in use
-      const updatedCachedPaste = {
-        ...cachedPaste,
-        viewsCount: cachedPaste.viewsCount + 1,
-      };
+  // async _incrementPasteViews(slug, cachedPaste) {
+  //   try {
+  //     // 1. Increment in the database
+  //     await pasteRepo.incrementViews(slug);
 
-      // 3. Update the cache with the new view count and reset TTL if enabled
-      if (isCacheEnabled) {
-        await cacheService.set(slug, updatedCachedPaste, CACHE_TTL);
-      }
+  //     // 2. Update the cached object's view count
+  //     // Create a new object to avoid modifying the one potentially still in use
+  //     const updatedCachedPaste = {
+  //       ...cachedPaste,
+  //       viewsCount: cachedPaste.viewsCount + 1,
+  //     };
 
-      // 4. Notify analytics service
-      axios
-        .post(`${ANALYTICS_SERVICE_URL}/api/analytics/increment`, {
-          pasteId: cachedPaste.id, // Use ID from cached object
-          dateBucket: new Date(),
-        })
-        .catch((err) => {
-          console.warn(
-            `Failed to update analytics (from cache) for ${slug}:`,
-            err.message
-          );
-        });
-    } catch (error) {
-      // Log errors during the background update process
-      console.error(
-        `Error during background view increment for ${slug}:`,
-        error
-      );
-      // Optionally, try to invalidate cache if DB update failed?
-      // await cacheService.delete(slug);
-    }
-  },
+  //     // 3. Update the cache with the new view count and reset TTL
+  //     await cacheService.set(slug, updatedCachedPaste, CACHE_TTL);
 
-  /**
-   * Get a paste by its slug
-   * @param {string} slug - The paste's unique slug
-   * @returns {Promise<Object|null>} The paste or null if not found/expired
-   */
-  async getPaste(slug) {
+  //     // 4. Notify analytics service
+  //     axios
+  //       .post(`${ANALYTICS_SERVICE_URL}/api/analytics/increment`, {
+  //         pasteId: cachedPaste.id, // Use ID from cached object
+  //         dateBucket: new Date(),
+  //       })
+  //       .catch((err) => {
+  //         console.warn(
+  //           `Failed to update analytics (from cache) for ${slug}:`,
+  //           err.message
+  //         );
+  //       });
+  //   } catch (error) {
+  //     // Log errors during the background update process
+  //     console.error(
+  //       `Error during background view increment for ${slug}:`,
+  //       error
+  //     );
+  //     // Optionally, try to invalidate cache if DB update failed?
+  //     // await cacheService.delete(slug);
+  //   }
+  // },
+
+  // async getPaste(slug) {
+  //   try {
+  //     // Try to get paste from cache first
+  //     const cachedPaste = await cacheService.get(slug);
+
+  //     if (cachedPaste) {
+  //       // Check if cached paste is expired
+  //       if (pasteRepo.isPasteExpired(cachedPaste)) {
+  //         await cacheService.delete(slug);
+  //         return null;
+  //       }
+
+  //       // await pasteRepo.incrementViews(slug);
+
+  //       // Increment views in background (fire and forget)
+  //       this._incrementPasteViews(slug, cachedPaste).catch((err) => {
+  //         console.error(`Failed to increment views for ${slug}:`, err);
+  //       });
+
+  //       return cachedPaste;
+  //     }
+
+  //     // If not in cache, get from database
+  //     const paste = await pasteRepo.findPasteBySlug(slug);
+  //     if (!paste) return null;
+
+  //     // Check if paste is expired
+  //     if (pasteRepo.isPasteExpired(paste)) {
+  //       return null;
+  //     }
+
+  //     // this._incrementPasteViews(slug, cachedPaste).catch((err) => {
+  //     //   console.error(`Failed to increment views for ${slug}:`, err);
+  //     // });
+
+  //     // Increment views
+  //     await pasteRepo.incrementViews(slug);
+
+  //     // Local copy modification for immediate view update
+  //     // paste.viewsCount += 1;
+
+  //     // update cache
+  //     await cacheService.set(slug, paste, CACHE_TTL);
+
+  //     // Notify analytics service (fire and forget)
+  //     try {
+  //       await axios
+  //         .post(`${ANALYTICS_SERVICE_URL}/api/analytics/increment`, {
+  //           pasteId: paste.id,
+  //           dateBucket: new Date(),
+  //         })
+  //         .catch((err) => {
+  //           // Log but don't fail request if analytics service is unavailable
+  //           console.warn("Failed to update analytics:", err.message);
+  //         });
+  //     } catch (analyticsError) {
+  //       // Log analytics errors but don't fail the main request
+  //       console.warn("Analytics service error:", analyticsError.message);
+  //     }
+
+  //     return paste;
+  //   } catch (error) {
+  //     console.error(`Error retrieving paste ${slug}:`, error);
+  //     throw new Error("Failed to retrieve paste");
+  //   }
+  // },
+
+  async getPasteWithoutIncrement(slug) {
     try {
       let cachedPaste = null;
       // Try to get paste from cache first if enabled
@@ -102,14 +165,6 @@ const pasteService = {
           }
           return null;
         }
-
-        // await pasteRepo.incrementViews(slug);
-
-        // Increment views in background (fire and forget)
-        // this._incrementPasteViews(slug, cachedPaste).catch((err) => {
-        //   console.error(`Failed to increment views for ${slug}:`, err);
-        // });
-
         return cachedPaste;
       }
 
@@ -122,36 +177,8 @@ const pasteService = {
         return null;
       }
 
-      // this._incrementPasteViews(slug, cachedPaste).catch((err) => {
-      //   console.error(`Failed to increment views for ${slug}:`, err);
-      // });
-
-      // Increment views
-      // await pasteRepo.incrementViews(slug);
-
-      // Local copy modification for immediate view update
-      // paste.viewsCount += 1;
-
-      // update cache if enabled
-      if (isCacheEnabled) {
-        await cacheService.set(slug, paste, CACHE_TTL);
-      }
-
-      // Notify analytics service (fire and forget)
-      // try {
-      //   await axios
-      //     .post(`${ANALYTICS_SERVICE_URL}/api/analytics/increment`, {
-      //       pasteId: paste.id,
-      //       dateBucket: new Date(),
-      //     })
-      //     .catch((err) => {
-      //       // Log but don't fail request if analytics service is unavailable
-      //       console.warn("Failed to update analytics:", err.message);
-      //     });
-      // } catch (analyticsError) {
-      //   // Log analytics errors but don't fail the main request
-      //   console.warn("Analytics service error:", analyticsError.message);
-      // }
+      // Cache the paste for future requests
+      await cacheService.set(slug, paste, CACHE_TTL);
 
       return paste;
     } catch (error) {
