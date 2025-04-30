@@ -18,7 +18,6 @@ const pasteRepo = {
         content,
         createdAt: new Date(),
         expirationTime: expirationTime || null,
-        viewsCount: 0,
       },
     });
     return paste;
@@ -31,18 +30,6 @@ const pasteRepo = {
    */
   async findPasteBySlug(slug) {
     return prismaClient.paste.findUnique({ where: { slug } });
-  },
-
-  /**
-   * Increment the view count for a paste
-   * @param {string} slug - The paste's unique slug
-   * @returns {Promise<void>}
-   */
-  async incrementViews(slug) {
-    await prismaClient.paste.update({
-      where: { slug },
-      data: { viewsCount: { increment: 1 } },
-    });
   },
 
   /**
