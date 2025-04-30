@@ -158,7 +158,6 @@ const pasteService = {
           await cacheService.delete(slug);
           return null;
         }
-        console.log("Cache Paste:", cachedPaste);
         return cachedPaste;
       }
 
@@ -180,7 +179,6 @@ const pasteService = {
       throw new Error("Failed to retrieve paste");
     }
   },
-
 };
 
 module.exports = pasteService;

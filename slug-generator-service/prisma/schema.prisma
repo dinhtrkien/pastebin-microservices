@@ -1,20 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Paste {
-  id             Int      @id @default(autoincrement())
-  slug           String   @unique
+  id             Int         @id @default(autoincrement())
+  slug           String      @unique
   content        String
-  createdAt      DateTime @default(now())
+  createdAt      DateTime    @default(now())
   expirationTime DateTime?
-  viewsCount     Int      @default(0)
-  analytics Analytics[]
+  viewsCount     Int         @default(0)
+  analytics      Analytics[]
 }
 
 model Analytics {
@@ -23,5 +23,19 @@ model Analytics {
   views      Int      @default(0)
   pasteId    Int
   paste      Paste    @relation(fields: [pasteId], references: [id])
+
   @@unique([pasteId, dateBucket], name: "pasteId_dateBucket_unique")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model token_ranges {
+  id          BigInt    @id @default(autoincrement())
+  range_start BigInt
+  range_end   BigInt
+  next_value  BigInt
+  leased_by   String
+  expires_at  DateTime  @db.Timestamptz(6)
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([range_start, range_end], map: "token_ranges_range_start_range_end_idx")
 }

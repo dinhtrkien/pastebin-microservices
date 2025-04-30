@@ -111,6 +111,9 @@ const pasteController = {
       
       // Increment view counter atomically
       await redis.incr(key);
+      const value = await redis.get(key);
+      console.log(`Value for ${key}: ${value}`);
+
       
       // Set expiration for the counter (3 days)
       await redis.expire(key, 60 * 60 * 24 * 3);
