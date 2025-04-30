@@ -1,14 +1,7 @@
 const pasteService = require("./pasteService");
-
-/**
- * Controller handling HTTP requests for paste operations
- */
+const {getRedisClient} = require("./redis/redisClient");
 const pasteController = {
-  /**
-   * Create a new paste
-   * @param {Request} req - Express request object
-   * @param {Object} res - Express response object
-   */
+
   async createPaste(req, res) {
     try {
       const { content, expirationType } = req.body;
@@ -73,11 +66,34 @@ const pasteController = {
     }
   },
 
-  /**
-   * Get a paste by its slug
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
+  // async getPaste(req, res) {
+  //   try {
+  //     const { slug } = req.params;
+
+  //     if (!slug) {
+  //       return res.status(400).json({ error: "Slug parameter is required" });
+  //     }
+
+  //     const paste = await pasteService.getPaste(slug);
+
+  //     if (!paste) {
+  //       return res.status(404).json({ error: "Paste not found or expired" });
+  //     }
+
+  //     res.json({
+  //       id: paste.id,
+  //       slug: paste.slug,
+  //       content: paste.content,
+  //       createdAt: paste.createdAt,
+  //       expirationTime: paste.expirationTime,
+  //       viewsCount: paste.viewsCount,
+  //     });
+  //   } catch (error) {
+  //     console.error(`Get paste error for slug ${req.params.slug}:`, error);
+  //     res.status(500).json({ error: "Failed to retrieve paste" });
+  //   }
+  // },
+
   async getPaste(req, res) {
     try {
       const { slug } = req.params;
@@ -86,7 +102,21 @@ const pasteController = {
         return res.status(400).json({ error: "Slug parameter is required" });
       }
 
-      const paste = await pasteService.getPaste(slug);
+      // Get Redis client
+      const redis = await getRedisClient();
+
+      // Atomic view counter using Redis
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const key = `paste:${slug}:${today}`;
+      
+      // Increment view counter atomically
+      await redis.incr(key);
+      
+      // Set expiration for the counter (3 days)
+      await redis.expire(key, 60 * 60 * 24 * 3);
+
+      // Retrieve the paste
+      const paste = await pasteService.getPasteWithoutIncrement(slug);
 
       if (!paste) {
         return res.status(404).json({ error: "Paste not found or expired" });
