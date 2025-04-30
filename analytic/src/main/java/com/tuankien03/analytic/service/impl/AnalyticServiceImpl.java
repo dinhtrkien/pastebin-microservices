@@ -20,9 +20,9 @@ public class AnalyticServiceImpl implements AnalyticService {
     private final AnalyticRepository analyticRepository;
 
     @Override
-    public List<Analytic> findAllByPasteIdAndFilter(Integer pasteId, LocalDate startDate, LocalDate endDate) {
-        return analyticRepository.findAllByPasteIdAndDateBucketBetween(
-                pasteId,
+    public List<Analytic> findAllBySlugAndFilter(String slug, LocalDate startDate, LocalDate endDate) {
+        return analyticRepository.findAllBySlugAndDateBucketBetween(
+                slug,
                 startDate,
                 endDate
          );

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "\"Analytics\"", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"\"pasteId\"", "\"dateBucket\""}, name = "Analytics_pasteId_dateBucket_key")
+        @UniqueConstraint(columnNames = {"\"slug\"", "\"dateBucket\""}, name = "ux_analytics_slug_datebucket")
 })
 @Data
 public class Analytic {
@@ -23,6 +23,9 @@ public class Analytic {
 
     @Column(nullable = false)
     private Integer views = 0;
+
+    @Column(name = "\"slug\"", nullable = false)
+    private String slug = "";
 
     @Column(name = "\"pasteId\"", nullable = false)
     private Integer pasteId;

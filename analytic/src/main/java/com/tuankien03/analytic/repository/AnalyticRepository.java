@@ -20,14 +20,13 @@ public interface AnalyticRepository extends JpaRepository<Analytic, Integer> {
     @Modifying
     @Transactional
     @Query(value = """
-        INSERT INTO analytic ("pasteId", "dateBucket", views)
+        INSERT INTO "Analytics" ("slug", "dateBucket", views)
         VALUES (:pasteId, :dateBucket, :views)
-        ON CONFLICT ("pasteId", "dateBucket")
+        ON CONFLICT ("slug", "dateBucket")
         DO UPDATE SET views = analytic.views + EXCLUDED.views
         """, nativeQuery = true)
-    void upsertViews(@Param("pasteId") int pasteId,
+    void upsertViews(@Param("slug") int slug,
                      @Param("dateBucket") LocalDate dateBucket,
                      @Param("views") int views);
-
-    List<Analytic> findAllByPasteIdAndDateBucketBetween(Integer pasteId, LocalDate dateBucketAfter, LocalDate dateBucketBefore);
+    List<Analytic> findAllBySlugAndDateBucketBetween(String slug, LocalDate dateBucketAfter, LocalDate dateBucketBefore);
 }

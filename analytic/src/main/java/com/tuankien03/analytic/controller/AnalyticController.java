@@ -17,14 +17,14 @@ public class AnalyticController {
 
     private final AnalyticService analyticService;
 
-    @GetMapping("/paste/{pasteId}/timeline")
+    @GetMapping("/paste/{slug}/timeline")
     public List<Analytic> getAnalyticByPasteAndDate(
-            @PathVariable("pasteId") Integer pasteId,
+            @PathVariable("slug") String slug,
             @RequestParam(value = "startDate", required = false) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) LocalDate endDate
     ) {
         startDate = (startDate == null) ? LocalDate.of(1970, 1, 1) : startDate;
         endDate = (endDate == null) ? LocalDate.now() : endDate;
-        return analyticService.findAllByPasteIdAndFilter(pasteId, startDate, endDate);
+        return analyticService.findAllBySlugAndFilter(slug, startDate, endDate);
     }
 }
