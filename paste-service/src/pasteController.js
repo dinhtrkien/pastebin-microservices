@@ -1,5 +1,7 @@
 const pasteService = require("./pasteService");
 const { getRedisClient } = require("./redis/redisClient");
+
+
 const pasteController = {
   async createPaste(req, res) {
     try {
@@ -65,34 +67,6 @@ const pasteController = {
     }
   },
 
-  // async getPaste(req, res) {
-  //   try {
-  //     const { slug } = req.params;
-
-  //     if (!slug) {
-  //       return res.status(400).json({ error: "Slug parameter is required" });
-  //     }
-
-  //     const paste = await pasteService.getPaste(slug);
-
-  //     if (!paste) {
-  //       return res.status(404).json({ error: "Paste not found or expired" });
-  //     }
-
-  //     res.json({
-  //       id: paste.id,
-  //       slug: paste.slug,
-  //       content: paste.content,
-  //       createdAt: paste.createdAt,
-  //       expirationTime: paste.expirationTime,
-  //       viewsCount: paste.viewsCount,
-  //     });
-  //   } catch (error) {
-  //     console.error(`Get paste error for slug ${req.params.slug}:`, error);
-  //     res.status(500).json({ error: "Failed to retrieve paste" });
-  //   }
-  // },
-
   async getPaste(req, res) {
     try {
       const { slug } = req.params;
@@ -129,7 +103,7 @@ const pasteController = {
         content: paste.content,
         createdAt: paste.createdAt,
         expirationTime: paste.expirationTime,
-        viewsCount: paste.viewsCount,
+        // viewsCount: paste.viewsCount,
       });
     } catch (error) {
       console.error(`Get paste error for slug ${req.params.slug}:`, error);
