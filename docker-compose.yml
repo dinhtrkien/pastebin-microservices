@@ -49,7 +49,8 @@ services:
       - "3001:3001" # Map host port 3001 to container port 3001
     environment:
       # Point to pgbouncer service for database connection
-      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?schema=public
       # Point to redis service
       REDIS_URL: redis://redis:6379
       PORT: 3001 # Ensure the service runs on the exposed port
@@ -70,7 +71,8 @@ services:
       - "3000:3000" # Map host port 3000 to container port 3000
     environment:
       # Point to pgbouncer service for database connection
-      DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      # DATABASE_URL: postgresql://root:rootpassword@database:5432/pastebin?schema=public
+      DATABASE_URL: postgresql://root:rootpassword@pgbouncer:6432/pastebin?schema=public
       # Point to redis service
       REDIS_URL: redis://redis:6379
       # Point to slug-generator service
