@@ -16,9 +16,7 @@ const pasteService = {
   async createPaste(content, expirationTime) {
     try {
       // Request a new slug from slug generator service
-      const slugResponse = await axios.post(
-        `${SLUG_GENERATOR_URL}/api/slugs/generate`
-      );
+      const slugResponse = await axios.get(`${SLUG_GENERATOR_URL}/slug`);
       const slug = slugResponse.data.slug;
 
       // Create paste in the database

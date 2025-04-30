@@ -106,6 +106,27 @@ services:
       - "3006:3006" # Map host port 3002 to container port 3002
     restart: unless-stopped
 
+  token-range-service:
+    build: ./token-range-service
+    container_name: pastebin-token-range-service
+    env_file:
+      - ./token-range-service/.env
+    ports:
+      - "3003:3003"
+    depends_on:
+      - database
+
+  token-service:
+    build: ./token-service
+    container_name: pastebin-token-service
+    env_file:
+      - ./token-service/.env
+    ports:
+      - "3004:3004"
+    depends_on:
+      - redis
+      # - token-range-service
+
 volumes:
   postgres_data: # Define the volume for PostgreSQL data persistence
   redis_data: # Define the volume for Redis data persistence

@@ -1,0 +1,19 @@
+{
+  "name": "token-range-service",
+  "version": "1.0.0",
+  "description": "Token Range Service for leasing numeric slices",
+  "main": "src/trs.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/trs.js",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "express": "^4.19.2",
+    "token-range-service": "file:"
+  },
+  "devDependencies": {
+    "prisma": "^5.14.0"
+  }
+}
