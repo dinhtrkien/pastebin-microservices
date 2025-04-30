@@ -8,7 +8,6 @@ const pasteRepo = {
         content,
         createdAt: new Date(),
         expirationTime: expirationTime || null,
-        viewsCount: 0,
       },
     });
     return paste;

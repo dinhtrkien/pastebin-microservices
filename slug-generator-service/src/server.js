@@ -24,7 +24,7 @@ app.post('/api/slugs/generate', async (req, res) => {
 app.post('/api/slugs/:slug/release', async (req, res) => {
   try {
     const { slug } = req.params;
-    await slugGeneratorService.releaseSlug(slug);
+    // await slugGeneratorService.releaseSlug(slug);
     res.json({ message: 'Slug released successfully' });
   } catch (error) {
     console.error('Error releasing slug:', error);
@@ -35,7 +35,7 @@ app.post('/api/slugs/:slug/release', async (req, res) => {
 app.post('/api/slugs/:slug/confirm', async (req, res) => {
   try {
     const { slug } = req.params;
-    await slugGeneratorService.confirmSlugUsed(slug);
+    // await slugGeneratorService.confirmSlugUsed(slug);
     res.json({ message: 'Slug confirmed successfully' });
   } catch (error) {
     console.error('Error confirming slug:', error);

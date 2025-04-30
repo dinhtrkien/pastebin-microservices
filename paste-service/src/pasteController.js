@@ -6,6 +6,8 @@ const pasteController = {
   async createPaste(req, res) {
     try {
       const { content, expirationType } = req.body;
+      // Log the received expirationType
+      // console.log(`Received expirationType: ${expirationType}`);
 
       if (!content) {
         return res.status(400).json({ error: "Content is required" });
@@ -38,18 +40,21 @@ const pasteController = {
           expirationTime = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
           break;
         case "1mo":
-          expirationTime = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Approx 1 month
           break;
         case "6mo":
-          expirationTime = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000); // Approx 6 months
           break;
         case "1y":
-          expirationTime = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+          expirationTime = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // Approx 1 year
           break;
         case "never":
         default:
           expirationTime = null;
       }
+
+      // Log the calculated expirationTime
+      // console.log(`Calculated expirationTime: ${expirationTime}`);
 
       const newPaste = await pasteService.createPaste(content, expirationTime);
 
@@ -59,7 +64,6 @@ const pasteController = {
         content: newPaste.content,
         createdAt: newPaste.createdAt,
         expirationTime: newPaste.expirationTime,
-        viewsCount: 0,
       });
     } catch (error) {
       console.error("Create paste error:", error);
@@ -106,6 +110,7 @@ const pasteController = {
         // viewsCount: paste.viewsCount,
       });
     } catch (error) {
+      console.log(`Retrieved paste error: ${error}`);
       console.error(`Get paste error for slug ${req.params.slug}:`, error);
       res.status(500).json({ error: "Failed to retrieve paste" });
     }

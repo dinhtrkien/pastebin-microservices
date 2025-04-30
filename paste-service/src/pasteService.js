@@ -3,7 +3,8 @@ const pasteRepo = require("./pasteRepo");
 
 const cacheService = require("./redis/cacheService");
 
-// Read service URLs from environment variables
+const isCacheEnabled = process.env.ENABLE_REDIS_CACHE === "true";
+
 const SLUG_GENERATOR_URL =
   process.env.SLUG_GENERATOR_URL || "http://localhost:3001";
 const ANALYTICS_SERVICE_URL =
@@ -32,13 +33,18 @@ const pasteService = {
 
   async getPasteWithoutIncrement(slug) {
     try {
-      // Try to get paste from cache first
-      const cachedPaste = await cacheService.get(slug);
+      let cachedPaste = null;
+      // Try to get paste from cache first if enabled
+      if (isCacheEnabled) {
+        cachedPaste = await cacheService.get(slug);
+      }
 
       if (cachedPaste) {
         // Check if cached paste is expired
         if (pasteRepo.isPasteExpired(cachedPaste)) {
-          await cacheService.delete(slug);
+          if (isCacheEnabled) {
+            await cacheService.delete(slug);
+          }
           return null;
         }
         return cachedPaste;
