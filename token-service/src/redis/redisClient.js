@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const redisClient = new Redis({
-  host: process.env.REDIS_HOST || "192.168.101.5",
+  host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT || 6379,
   // Add password if your Redis instance requires authentication
   // password: process.env.REDIS_PASSWORD,
