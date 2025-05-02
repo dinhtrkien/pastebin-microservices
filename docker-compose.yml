@@ -98,7 +98,7 @@ services:
     depends_on:
       - database 
     environment:
-      SPRING_DATA_REDIS_HOST: 104.214.179.127
+      SPRING_DATA_REDIS_HOST: 104.43.58.120
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATASOURCE_URL: jdbc:postgresql://104.214.179.127:5432/pastebin
     ports:
