@@ -33,7 +33,7 @@ public class AnalyticFlushService {
         log.info("📦 Starting flush from Redis to DB...");
 
         Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection()
-                .scan(ScanOptions.scanOptions().match("paste:*:*:*").count(FLUSH_BATCH_SIZE).build());
+                .scan(ScanOptions.scanOptions().match("view:*:*:*").count(FLUSH_BATCH_SIZE).build());
 
         Map<String, Integer> viewMap = new HashMap<>();
 
