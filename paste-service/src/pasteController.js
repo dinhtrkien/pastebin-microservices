@@ -91,7 +91,7 @@ const pasteController = {
 
       // Atomic view counter using Redis
       const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-      const key = `paste:${slug}:${today}:${paste.id}`;
+      const key = `view:${slug}:${today}:${paste.id}`;
 
       // Increment view counter atomically
       await redis.incr(key);
