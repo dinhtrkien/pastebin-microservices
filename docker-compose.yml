@@ -100,7 +100,7 @@ services:
     environment:
       SPRING_DATA_REDIS_HOST: 104.214.179.127
       SPRING_DATA_REDIS_PORT: 6379
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/pastebin
+      SPRING_DATASOURCE_URL: jdbc:postgresql://104.214.179.127:5432/pastebin
     ports:
       - "3006:3006"
     restart: unless-stopped
