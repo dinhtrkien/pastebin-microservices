@@ -23,7 +23,7 @@ COPY src ./src
 
 # Copy the .env file - Be cautious with sensitive data in Docker images
 # Consider using Docker secrets or environment variables at runtime instead
-COPY .env ./.env
+# COPY .env ./.env
 
 # Expose the port the app runs on (from .env or default 3000)
 EXPOSE 3000
