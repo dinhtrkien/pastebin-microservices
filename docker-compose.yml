@@ -108,6 +108,19 @@ services:
       - "3002:3002"
     restart: unless-stopped
 
+  cleanup-service:
+    build:
+      context: ./cleanup
+      dockerfile: Dockerfile
+    container_name: pastebin_cleanup_service
+    depends_on:
+      - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://10.0.1.149:5432/pastebin
+    ports:
+      - "3005:3005"
+    restart: unless-stopped
+
   analytic-worker:
     build:
       context: ./analyticWorker

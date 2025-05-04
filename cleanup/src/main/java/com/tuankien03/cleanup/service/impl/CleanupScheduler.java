@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 public class CleanupScheduler {
     private final CleanupService cleanupService;
 
-    // 🕛 Chạy mỗi ngày lúc 12:00 đêm (00:00)
-    @Scheduled(cron = "0 0 0 * * *")  // Giờ phút giây, ngày, tháng, thứ
+    @Scheduled(cron = "0 0 0 * * *")
     public void scheduledCleanup() {
         log.info("⏰ Running scheduled cleanup at midnight...");
         cleanupService.cleanup();
