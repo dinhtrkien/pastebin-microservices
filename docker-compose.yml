@@ -1,5 +1,21 @@
 version: "3.8"
 services:
+  app:
+    build:
+      context: ./pastebin
+      dockerfile: Dockerfile
+    container_name: pastebin_app
+    depends_on:
+     - paste-service
+     - analytic-service
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://pastebin-alb-1223430401.ap-east-1.elb.amazonaws.com:3000
+      NEXT_PUBLIC_ANALYTICS_API_BASE_URL: http://pastebin-alb-1223430401.ap-east-1.elb.amazonaws.com:3002
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+
   database:
     image: postgres:15
     container_name: pastebin_postgres
