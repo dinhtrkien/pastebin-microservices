@@ -86,6 +86,8 @@ services:
     container_name: pastebin_analytic_service
     depends_on:
       - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://104.214.179.127:5432/pastebin
     ports:
       - "3002:3002"
     restart: unless-stopped
