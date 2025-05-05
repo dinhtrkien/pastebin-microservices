@@ -1,5 +1,21 @@
 version: "3.8"
 services:
+  app:
+    build:
+      context: ./pastebin
+      dockerfile: Dockerfile
+    container_name: pastebin_app
+    depends_on:
+     - paste-service
+     - analytic-service
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://pastebin-alb-1223430401.ap-east-1.elb.amazonaws.com:3000
+      NEXT_PUBLIC_ANALYTICS_API_BASE_URL: http://pastebin-alb-1223430401.ap-east-1.elb.amazonaws.com:3002
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+
   database:
     image: postgres:15
     container_name: pastebin_postgres
@@ -88,10 +104,21 @@ services:
       - database
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://10.0.1.149:5432/pastebin
-      SPRING_DATA_REDIS_HOST: 10.0.1.149
-      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "3002:3002"
+    restart: unless-stopped
+
+  cleanup-service:
+    build:
+      context: ./cleanup
+      dockerfile: Dockerfile
+    container_name: pastebin_cleanup_service
+    depends_on:
+      - database
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://10.0.1.149:5432/pastebin
+    ports:
+      - "3005:3005"
     restart: unless-stopped
 
   analytic-worker:
